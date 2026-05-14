@@ -1,0 +1,8 @@
+# Level 1 (Critical) - read every line, human review required.
+/examples/level-1/    @moshhom
+
+# Level 2 (Very important) - structural review required.
+/examples/level-2/    @moshhom
+
+# Levels 3 and 4 have no required owner and can be reviewed lightly
+# or, for Level 4, not at all.

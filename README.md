@@ -142,6 +142,17 @@ in a banner inside each code block.
   Stripe webhook entry for a tiny notes SaaS. Signature verified first,
   then dispatch handed off to a narrow billing module. Every line read.
 
+- **[Level 1 — Account hard-delete](examples/level-1/account-deletion.md).**
+  The irreversible end of the deletion pipeline. Re-verifies the
+  confirmation, writes an audit row, then `DELETE`s across an explicit
+  list of user-owned tables in one transaction. Reaches Level 1 mainly
+  by **revertability**: there is no undo.
+
+- **[Level 1 — Session token verifier](examples/level-1/session-token.md).**
+  Identity check that runs on every authenticated request. Pure logic,
+  no DB, no network. Reaches Level 1 mainly by **blast radius**: a bug
+  here grants the wrong identity to every downstream handler at once.
+
 More examples (Level 2, 3, and 4) will land here as they're written.
 
 ## Status

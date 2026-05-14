@@ -119,15 +119,15 @@ work is in choosing where the level boundaries sit on top of that
 structure, marking them in a way both agents and reviewers can see, and
 enforcing them at review time and at runtime.
 
-A pattern that falls out of this naturally: wrap a stretch of low-trust
-code in a frame of high-trust code. The top of the frame validates and
+A pattern that falls out of this naturally: wrap a stretch of lower-trust
+code in a frame of Level 1 code. The top of the frame validates and
 narrows everything coming in — auth, schema, permissions, input
 normalisation. The bottom of the frame validates and gates everything
 going out — what is written to the database, what is sent to external
-services, what is returned to the caller. In between, the middle can be
-a long stretch of Level 3 or Level 4 code, freely generated and
-regenerated, and stay safe, because anything it produces still has to
-cross a Level 1 boundary before it touches anything real.
+services, what is returned to the caller. In between, the middle can
+hold anything that isn't Level 1 — graded as strictly or as loosely as
+the work warrants — and stay safe, because anything it produces still
+has to cross a Level 1 boundary before it touches anything real.
 
 This is where the regular architectures earn their place. The top of the
 frame is the controller, the request validator, the auth middleware, the
@@ -137,6 +137,20 @@ audit logger. ACSA does not invent those layers; it just leans on them,
 marks them Level 1, and leaves the work between them looser. The cheapest
 way to bring an existing module under ACSA is to leave the middle
 untouched and put a frame around it.
+
+### Examples
+
+Small, file-sized examples that show what each level looks like in
+practice. The same logic is shown in Python, TypeScript, and Go, with
+the level marked three times: in the folder, in the file's header, and
+in a banner inside each code block.
+
+- **[Level 1 — Billing webhook handler](examples/level-1/billing-webhook.md).**
+  Stripe webhook entry for a tiny notes SaaS. Signature verified first,
+  idempotency enforced, dispatch handed off to a narrow billing module.
+  Every line read.
+
+More examples (Level 2, 3, and 4) will land here as they're written.
 
 ## Status
 

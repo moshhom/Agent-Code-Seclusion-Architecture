@@ -112,31 +112,24 @@ are needed **more**, not less, when agents are writing code.
 ## Implementation
 
 ACSA does not prescribe a project layout, a language, a CI setup, or a
-runtime model. It is an add-on, so most of the implementation comes from
-the other architectures already in use — layered, hexagonal,
-ports-and-adapters, modular monolith, whatever the project runs on. The
-work is in choosing where the level boundaries sit on top of that
-structure, marking them in a way both agents and reviewers can see, and
-enforcing them at review time and at runtime.
+runtime model. It is an add-on to whatever architecture is already in
+use — layered, hexagonal, ports-and-adapters, modular monolith. The work
+is choosing where the level boundaries sit, marking them so agents and
+reviewers can both see them, and enforcing them at review time and at
+runtime.
 
 A pattern that falls out of this naturally: wrap a stretch of lower-trust
 code in a frame of Level 1 code. The top of the frame validates and
-narrows everything coming in — auth, schema, permissions, input
-normalisation. The bottom of the frame validates and gates everything
-going out — what is written to the database, what is sent to external
-services, what is returned to the caller. In between, the middle can
-hold anything that isn't Level 1 — graded as strictly or as loosely as
-the work warrants — and stay safe, because anything it produces still
-has to cross a Level 1 boundary before it touches anything real.
-
-This is where the regular architectures earn their place. The top of the
-frame is the controller, the request validator, the auth middleware, the
-input port — names already supplied by whatever design the project uses.
-The bottom is the repository, the service boundary, the output port, the
-audit logger. ACSA does not invent those layers; it just leans on them,
-marks them Level 1, and leaves the work between them looser. The cheapest
-way to bring an existing module under ACSA is to leave the middle
-untouched and put a frame around it.
+narrows everything coming in — auth, schema, permissions. The bottom
+gates everything going out — DB writes, external calls, the response.
+The middle can hold anything that isn't Level 1, graded as strictly or
+as loosely as the work warrants, and stay safe because anything it
+produces still has to cross a Level 1 boundary before it touches anything
+real. The frame edges are usually already named by the existing
+architecture — controllers, validators, repositories, ports, audit
+loggers — ACSA just marks them Level 1 and leaves the middle looser. The
+cheapest way to bring an existing module under ACSA is to leave the
+middle untouched and put a frame around it.
 
 ### Examples
 

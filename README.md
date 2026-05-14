@@ -159,6 +159,12 @@ in a banner inside each code block.
   mainly by **maintenance lifetime**: nothing dramatic per edit, but
   the cost of every unclear or wrong line is paid for years.
 
+- **[Level 1 — System-wide status banner](examples/level-1/status-banner.md).**
+  Single writer for the banner shown at the top of every signed-in
+  page (maintenance windows, incidents, announcements). Reaches Level
+  1 by **blast radius on the user surface**: no DB, no security, no
+  money — but a wrong banner reaches every user at the same time.
+
 More examples (Level 2, 3, and 4) will land here as they're written.
 
 ## Status

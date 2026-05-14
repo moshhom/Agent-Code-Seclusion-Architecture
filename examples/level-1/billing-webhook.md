@@ -29,8 +29,6 @@ point for those events.
 - Signature is verified **before** any work. No parsing, no DB access,
   no logging of the body until the signature passes.
 - Constant-time comparison. No early-exit on first byte mismatch.
-- Idempotency: every event ID is checked against a store before it is
-  processed. Stripe retries.
 - The set of imports is narrow and audited. This file does not pull in
   the rest of the app — it reaches into a tiny billing module that owns
   the DB writes, and nothing else.
@@ -46,15 +44,12 @@ point for those events.
 # Read every line. No merge without manual review.
 # Rationale: Stripe webhook entry; access to signing secret and billing state.
 
-import hmac
-import hashlib
 import os
-import time
 from http import HTTPStatus
 
 import stripe  # narrow, audited dependency
 
-from billing import apply_event, already_processed, record_processed
+from billing import apply_event
 
 STRIPE_WEBHOOK_SECRET = os.environ["STRIPE_WEBHOOK_SECRET"]
 MAX_SKEW_SECONDS = 5 * 60
@@ -72,14 +67,9 @@ def handle_webhook(raw_body: bytes, signature_header: str) -> int:
     except (stripe.error.SignatureVerificationError, ValueError):
         return HTTPStatus.BAD_REQUEST
 
-    # 2. Idempotency. Stripe retries; we must not double-apply.
-    if already_processed(event["id"]):
-        return HTTPStatus.OK
-
-    # 3. Apply the event inside the billing module. This file does not
+    # 2. Apply the event inside the billing module. This file does not
     #    touch the DB directly.
     apply_event(event)
-    record_processed(event["id"])
     return HTTPStatus.OK
 ```
 
@@ -91,7 +81,7 @@ def handle_webhook(raw_body: bytes, signature_header: str) -> int:
 // Rationale: Stripe webhook entry; access to signing secret and billing state.
 
 import Stripe from "stripe"; // narrow, audited dependency
-import { applyEvent, alreadyProcessed, recordProcessed } from "./billing";
+import { applyEvent } from "./billing";
 
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET!;
 const MAX_SKEW_SECONDS = 5 * 60;
@@ -117,15 +107,9 @@ export async function handleWebhook(
     return 400;
   }
 
-  // 2. Idempotency. Stripe retries; we must not double-apply.
-  if (await alreadyProcessed(event.id)) {
-    return 200;
-  }
-
-  // 3. Apply the event inside the billing module. This file does not
+  // 2. Apply the event inside the billing module. This file does not
   //    touch the DB directly.
   await applyEvent(event);
-  await recordProcessed(event.id);
   return 200;
 }
 ```
@@ -173,24 +157,9 @@ func HandleWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 2. Idempotency. Stripe retries; we must not double-apply.
-	processed, err := billing.AlreadyProcessed(r.Context(), event.ID)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if processed {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	// 3. Apply the event inside the billing module. This file does not
+	// 2. Apply the event inside the billing module. This file does not
 	//    touch the DB directly.
 	if err := billing.ApplyEvent(r.Context(), event); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if err := billing.RecordProcessed(r.Context(), event.ID); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

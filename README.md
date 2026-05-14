@@ -147,8 +147,7 @@ in a banner inside each code block.
 
 - **[Level 1 — Billing webhook handler](examples/level-1/billing-webhook.md).**
   Stripe webhook entry for a tiny notes SaaS. Signature verified first,
-  idempotency enforced, dispatch handed off to a narrow billing module.
-  Every line read.
+  then dispatch handed off to a narrow billing module. Every line read.
 
 More examples (Level 2, 3, and 4) will land here as they're written.
 

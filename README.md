@@ -153,6 +153,12 @@ in a banner inside each code block.
   no DB, no network. Reaches Level 1 mainly by **blast radius**: a bug
   here grants the wrong identity to every downstream handler at once.
 
+- **[Level 1 — Plan entitlement matrix](examples/level-1/plan-entitlements.md).**
+  Source of truth for what each subscription plan can do. A small,
+  plain data file read from dozens of call sites. Reaches Level 1
+  mainly by **maintenance lifetime**: nothing dramatic per edit, but
+  the cost of every unclear or wrong line is paid for years.
+
 More examples (Level 2, 3, and 4) will land here as they're written.
 
 ## Status
